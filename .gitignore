@@ -1,3 +1,4 @@
 #ignore local eclipse dot files
 .project
 .classpath
+*.class
