@@ -1,0 +1,10 @@
+Project: Chat Server
+Author:  nu11xer0
+Date:	 May 24, 2017 16:38
+Purpose: A simple chat server (client tba)
+
+Package: 			Chat Server        
+				      \
+			    ----------------------
+	 		   /			  \
+Classes:		 Server			Conn_T - private class??
