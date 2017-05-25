@@ -14,8 +14,7 @@ import java.net.ServerSocket;
 public class Server 
 {		
 	private final static int PORT = 4444;
-	private static Conn_T conThread;
-	private static Socket s;
+	private static ConHandler handler;
 	private static ServerSocket ss;
 
 	public static void main(String[] args) 
@@ -23,18 +22,23 @@ public class Server
 		Boolean gogogo = true;
 		
 		try 
-		{	
+		{
+			//TODO
+			// This needs to be reworked and moved into the handlers class 
 			ss = new ServerSocket(PORT);		
 		
 			do{							
-				s = ss.accept();								
-				conThread = new Conn_T(s);	
-				
-				//TODO: add socket to the ConArray
-				//		handle user name 
-				//		start thread
-				//		find a graceful way to shutdown.
-				
+			    Socket s = ss.accept();								
+				handler = new ConHandler(s);	
+				if(handler.execute() != 0)
+				{
+					System.err.println("[!] Server handler failed or died. Terminating.");
+					if(s.isConnected())
+					{ s.close(); }
+					if(!ss.isClosed())
+					{ ss.close(); }
+				}
+				//TODO: find a graceful way to shutdown.				
 			}while(gogogo);
 		} 
 		catch (IOException e) 

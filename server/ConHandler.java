@@ -6,28 +6,31 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.ServerSocket;
 
-public class Conn_T  
+public class ConHandler  
 {
 	private Socket sock;
 	private Scanner input;
 	private ArrayList<Socket> conArray = new ArrayList<Socket>();
 	private ArrayList<String> unameArray = new ArrayList<String>();
-	protected Conn_Thread cThread;
+	private RCV_Thread cThread;
 	
-	public Conn_T()
+	public ConHandler()
 	{
-		throw new IllegalArgumentException();
+		// This class requires a socket as an argument
+		System.err.println("The ConHandler class requires a socket");
+		throw new IllegalArgumentException();		
 	}
 	
-	public Conn_T(Socket s)
+	public ConHandler(ServerSocket s)
 	{
 		System.out.println("[+] in Conn_T - constructor");
 		
 		try
 		{
+			// Initialize private fields
 			sock = s;
 			input = new Scanner(sock.getInputStream());
-			cThread = new Conn_Thread();
+			cThread = new RCV_Thread();
 		}
 		catch(IOException e)
 		{
@@ -39,15 +42,35 @@ public class Conn_T
 	{
 		System.out.println("[+] In Conn_T - method execute");
 		
+		// Create and start the receive thread
+		Thread x = new Thread(cThread);
+		x.start();
+		
+		//TODO 
+		// add socket to ArrayList
+		// add user to ArrayList
+		
 		return 0;
 	}
 	
-	private class Conn_Thread implements Runnable
+	private void send(String str)
 	{
+		//TODO
+		// pause the receive thread
+		// send the string
+		// restart the receive thread
+	}
+	
+	private class RCV_Thread implements Runnable
+	{
+		
 		public void run() 
 		{
 			System.out.println("[+] In Conn_T - private class Con_Thread - method run");
 			
+			//TODO
+			// infinite loop for input Scanner
+			// 
 			return;
 		}//end method run
 	}
