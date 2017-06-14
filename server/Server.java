@@ -29,7 +29,7 @@ public class Server
 		
 			do{							
 			    Socket s = ss.accept();								
-				handler = new ConHandler(s);	
+				handler = new ConHandler(ss);	
 				if(handler.execute() != 0)
 				{
 					System.err.println("[!] Server handler failed or died. Terminating.");

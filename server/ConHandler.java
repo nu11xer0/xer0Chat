@@ -8,8 +8,8 @@ import java.net.ServerSocket;
 
 public class ConHandler  
 {
-	private Socket sock;
-	private Scanner input;
+	private ServerSocket srvSock;
+	private Socket tempSock;
 	private ArrayList<Socket> conArray = new ArrayList<Socket>();
 	private ArrayList<String> unameArray = new ArrayList<String>();
 	private RCV_Thread cThread;
@@ -17,7 +17,7 @@ public class ConHandler
 	public ConHandler()
 	{
 		// This class requires a socket as an argument
-		System.err.println("The ConHandler class requires a socket");
+		System.err.println("[!] The ConHandler class requires a socket");
 		throw new IllegalArgumentException();		
 	}
 	
@@ -25,32 +25,37 @@ public class ConHandler
 	{
 		System.out.println("[+] in Conn_T - constructor");
 		
-		try
-		{
-			// Initialize private fields
-			sock = s;
-			input = new Scanner(sock.getInputStream());
-			cThread = new RCV_Thread();
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}		
+		// Initialize private fields
+		srvSock = s;		
+		cThread = new RCV_Thread();		
 	}
 	
 	public int execute()
 	{
 		System.out.println("[+] In Conn_T - method execute");
 		
-		// Create and start the receive thread
-		Thread x = new Thread(cThread);
-		x.start();
+		while(true)
+		{
+			try 
+			{
+				tempSock = srvSock.accept();			
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+				return 1;
+			}
+			
+			// Create and start the receive thread
+			Thread x = new Thread(cThread);
+			x.start();
+			
+			conArray.add(tempSock);
 		
-		//TODO 
-		// add socket to ArrayList
-		// add user to ArrayList
-		
-		return 0;
+			//TODO 
+			// add socket to ArrayList
+			// add user to ArrayList
+		}
 	}
 	
 	private void send(String str)
@@ -63,6 +68,29 @@ public class ConHandler
 	
 	private class RCV_Thread implements Runnable
 	{
+		private Scanner input;
+		
+		public RCV_Thread()
+		{
+			// This class requires a socket as an argument
+			System.err.println("[!] The RCV_Thread class requires a Scanner object");
+			throw new IllegalArgumentException();		
+		}
+		
+		public RCV_Thread(Scanner in)
+		{
+				
+			try 
+			{
+				this.input = in;
+				input = new Scanner(tempSock.getInputStream());
+			} 
+			catch (IOException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		public void run() 
 		{
