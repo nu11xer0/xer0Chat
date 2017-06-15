@@ -1,5 +1,11 @@
 package server;
 
+/*
+ *  FIXIT NOTES
+ * null pointer issue in RCV_Thread
+ * -full rework of threads and well... fucking everything.. sigh.
+ * */
+
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.IOException;
@@ -8,82 +14,92 @@ import java.net.ServerSocket;
 
 public class ConHandler  
 {
+	private final static int PORT = 4444;
 	private ServerSocket srvSock;
-	private Socket tempSock;
+	private Socket socket;	
+	private Scanner input;
 	private ArrayList<Socket> conArray = new ArrayList<Socket>();
 	private ArrayList<String> unameArray = new ArrayList<String>();
+	private LST_Thread lThread;
 	private RCV_Thread cThread;
 	
-	public ConHandler()
-	{
-		// This class requires a socket as an argument
-		System.err.println("[!] The ConHandler class requires a socket");
-		throw new IllegalArgumentException();		
-	}
-	
-	public ConHandler(ServerSocket s)
+	public ConHandler() throws IOException
 	{
 		System.out.println("[+] in Conn_T - constructor");
 		
-		// Initialize private fields
-		srvSock = s;		
-		cThread = new RCV_Thread();		
-	}
-	
-	public int execute()
-	{
-		System.out.println("[+] In Conn_T - method execute");
+		srvSock = new ServerSocket(PORT);
 		
-		while(true)
+		// Create and start the listen thread
+		lThread = new LST_Thread();		
+		Thread x = new Thread(lThread);
+		x.start();
+		
+			
+		// Create and start the receive thread
+		cThread = new RCV_Thread();
+		Thread y = new Thread(cThread);
+		y.start();		
+	}	
+	
+	private class LST_Thread implements Runnable
+	{
+		public Thread x;
+		private Socket tempSock;
+		
+		public void run() 
+		{			
+			do{			
+				try 
+				{
+					tempSock = srvSock.accept();
+				} 
+				catch (IOException e) 
+				{
+					e.printStackTrace();
+				}								
+							
+				conArray.add(tempSock);
+			
+				//TODO 
+				// add socket to ArrayList 
+				// add user to ArrayList
+				// find a graceful way to shutdown.				
+			}while(true);			
+		}
+		
+		private void sendUserList(ArrayList<String> users)
 		{
+			//TODO
+			// pause the receive thread
+			// send the list
+			// restart the receive thread
 			try 
 			{
-				tempSock = srvSock.accept();			
+				x.wait();
 			} 
-			catch (IOException e) 
+			catch (InterruptedException e) 
 			{
+				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return 1;
 			}
 			
-			// Create and start the receive thread
-			Thread x = new Thread(cThread);
-			x.start();
+			for(int i = 0; i < conArray.size(); i++)
+			{
+				// TODO Send user list 
+			}
 			
-			conArray.add(tempSock);
-		
-			//TODO 
-			// add socket to ArrayList
-			// add user to ArrayList
+			notify();
 		}
-	}
-	
-	private void send(String str)
-	{
-		//TODO
-		// pause the receive thread
-		// send the string
-		// restart the receive thread
 	}
 	
 	private class RCV_Thread implements Runnable
-	{
-		private Scanner input;
-		
+	{				
 		public RCV_Thread()
-		{
-			// This class requires a socket as an argument
-			System.err.println("[!] The RCV_Thread class requires a Scanner object");
-			throw new IllegalArgumentException();		
-		}
-		
-		public RCV_Thread(Scanner in)
-		{
-				
+		{				
 			try 
 			{
-				this.input = in;
-				input = new Scanner(tempSock.getInputStream());
+				//this.input = new Scanner(PrintWriter(tempSock));
+				input = new Scanner(socket.getInputStream());
 			} 
 			catch (IOException e) 
 			{
@@ -94,7 +110,7 @@ public class ConHandler
 		
 		public void run() 
 		{
-			System.out.println("[+] In Conn_T - private class Con_Thread - method run");
+			System.out.println("[+] In \"ConnHandler\" private class \"RCV_Thread\" method \"run\"");
 			
 			//TODO
 			// infinite loop for input Scanner
