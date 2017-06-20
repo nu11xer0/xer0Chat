@@ -43,7 +43,9 @@ public class Server
 			switch(choice)
 			{
 				case 99: System.out.println("[+] Exiting...");
-						 gogogo = false;
+						 System.exit(0); 
+						 //gogogo = false;
+						 //handler.shutdown();
 						 break;
 				default: System.out.println("[+] Ass sphincter says \"What\"?");
 						 break;
@@ -51,13 +53,11 @@ public class Server
 		}
 		
 		consoleInput.close();
-
-		return;
 	}//end method main
 	
 	public static void printMenu()
 	{
-		System.out.printf("%s%n%n%s%n%n%s%n",
+		System.out.printf("%s%n%n%s%n%n%s",
 						  "_-= xeroChat Server Console =-_",
 						  "type 99 <enter> to quit.",
 						  "> ");		

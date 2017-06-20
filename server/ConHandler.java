@@ -9,6 +9,7 @@ package server;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.ServerSocket;
 
@@ -16,39 +17,35 @@ public class ConHandler
 {
 	private final static int PORT = 4444;
 	private ServerSocket srvSock;
-	private Socket socket;	
+	//private Socket socket;	
 	private Scanner input;
 	private ArrayList<Socket> conArray = new ArrayList<Socket>();
 	private ArrayList<String> unameArray = new ArrayList<String>();
 	private LST_Thread lThread;
 	private RCV_Thread cThread;
+	private Thread x;
 	
 	public ConHandler() throws IOException
 	{
 		System.out.println("[+] in Conn_T - constructor");
 		
 		srvSock = new ServerSocket(PORT);
-		
+				
 		// Create and start the listen thread
 		lThread = new LST_Thread();		
-		Thread x = new Thread(lThread);
-		x.start();
-		
-			
-		// Create and start the receive thread
-		cThread = new RCV_Thread();
-		Thread y = new Thread(cThread);
-		y.start();		
+		x = new Thread(lThread);
+		x.start();				
 	}	
-	
+		
 	private class LST_Thread implements Runnable
 	{
-		public Thread x;
+		public Thread y;
 		private Socket tempSock;
+		private volatile Boolean run = true;
 		
 		public void run() 
 		{			
-			do{			
+			do{	
 				try 
 				{
 					tempSock = srvSock.accept();
@@ -59,12 +56,24 @@ public class ConHandler
 				}								
 							
 				conArray.add(tempSock);
-			
+				
+				// Create and start the receive thread
+				cThread = new RCV_Thread(tempSock);
+				Thread y = new Thread(cThread);
+				y.start();
 				//TODO 
 				// add socket to ArrayList 
 				// add user to ArrayList
 				// find a graceful way to shutdown.				
-			}while(true);			
+			}while(run);			
+		}
+		
+		public int shutdown()
+		{
+			System.out.println("[+] Killing \"LST_Thread\"");
+
+			this.run = false;
+			return 0;
 		}
 		
 		private void sendUserList(ArrayList<String> users)
@@ -88,18 +97,20 @@ public class ConHandler
 				// TODO Send user list 
 			}
 			
-			notify();
+			x.notify();
 		}
 	}
 	
 	private class RCV_Thread implements Runnable
-	{				
-		public RCV_Thread()
+	{		
+		//private volatile Boolean run;
+		
+		public RCV_Thread(Socket s)
 		{				
 			try 
 			{
 				//this.input = new Scanner(PrintWriter(tempSock));
-				input = new Scanner(socket.getInputStream());
+				input = new Scanner(s.getInputStream());
 			} 
 			catch (IOException e) 
 			{
@@ -112,10 +123,28 @@ public class ConHandler
 		{
 			System.out.println("[+] In \"ConnHandler\" private class \"RCV_Thread\" method \"run\"");
 			
-			//TODO
-			// infinite loop for input Scanner
-			// 
-			return;
-		}//end method run
+			while(true)
+			{
+				if(input.hasNext())
+				{
+					String tempStr = input.nextLine();
+					
+					for(int i = 0; i < conArray.size(); i++)
+					{
+						try 
+						{
+							PrintWriter out = new PrintWriter(conArray.get(i).getOutputStream());
+							out.print("You said: ");
+							out.println(tempStr);
+							out.flush();
+						} 
+						catch (IOException e) 
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}//end method run		
 	}
 }//end class Conn_T
