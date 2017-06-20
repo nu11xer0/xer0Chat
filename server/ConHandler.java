@@ -27,7 +27,7 @@ public class ConHandler
 	
 	public ConHandler() throws IOException
 	{
-		System.out.println("[+] in Conn_T - constructor");
+		System.out.println("[+] in ConHandler - constructor");
 		
 		srvSock = new ServerSocket(PORT);
 				
@@ -45,6 +45,7 @@ public class ConHandler
 		
 		public void run() 
 		{			
+			System.out.println("[+] in \"ConHandler\" private class \"LST_Thread\" run method");
 			do{	
 				try 
 				{
@@ -61,21 +62,13 @@ public class ConHandler
 				cThread = new RCV_Thread(tempSock);
 				Thread y = new Thread(cThread);
 				y.start();
+				
 				//TODO 
-				// add socket to ArrayList 
 				// add user to ArrayList
 				// find a graceful way to shutdown.				
 			}while(run);			
 		}
-		
-		public int shutdown()
-		{
-			System.out.println("[+] Killing \"LST_Thread\"");
-
-			this.run = false;
-			return 0;
-		}
-		
+						
 		private void sendUserList(ArrayList<String> users)
 		{
 			//TODO
@@ -129,7 +122,7 @@ public class ConHandler
 				{
 					String tempStr = input.nextLine();
 					
-					for(int i = 0; i < conArray.size(); i++)
+					for(int i = 0; i < conArray.size() - 1; i++)
 					{
 						try 
 						{
