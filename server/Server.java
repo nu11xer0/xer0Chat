@@ -6,6 +6,7 @@ package server;
  * Purpose: A simple irc-like chat server
  */
 
+import java.io.IOException;
 import java.util.Scanner;
 
 
@@ -19,23 +20,18 @@ public class Server
 	{
 		Scanner consoleInput = new Scanner(System.in);
 		int choice = 0;
-		Boolean gogogo = true;
 		
-		System.out.println("[+] In class \"Server\" method \"main\"");
+		//System.out.println("[+] In class \"Server\" method \"main\"");
 		
 		try 
-		{
-			//TODO
-			// This needs to be reworked and moved into the handlers class 
-			handler = new ConHandler();	
-		}
+		{ handler = new ConHandler(); }
 		catch(Exception e)
 		{
 			e.printStackTrace();
 			System.exit(1);
 		}		
 		
-		while(gogogo)
+		while(true)
 		{
 			printMenu();
 			choice = consoleInput.nextInt();
@@ -43,16 +39,18 @@ public class Server
 			switch(choice)
 			{
 				case 99: System.out.println("[+] Exiting...");
+						 try 
+						 { handler.killSock(); } 
+						 catch (IOException e) 
+						 {	e.printStackTrace(); }
+						 consoleInput.close();
 						 System.exit(0); 
-						 //gogogo = false;
-						 //handler.shutdown();
 						 break;
+						 
 				default: System.out.println("[+] Ass sphincter says \"What\"?");
 						 break;
 			}
-		}
-		
-		consoleInput.close();
+		}		
 	}//end method main
 	
 	public static void printMenu()
