@@ -6,26 +6,26 @@ import java.net.Socket;
 import java.net.ServerSocket;
 import Resources.Constants;
 
-public class ConHandler{	
+public class ServerHandler{	
 	private ServerSocket srvSock;
 	private ArrayList<Socket> socketArray = new ArrayList<Socket>();
 	private ArrayList<String> unameArray = new ArrayList<String>(); //not implemented yet...
-	private LST_Thread lThread;
+	private INIT_Thread lThread;
 	private Thread x;
 
-	public ConHandler() throws IOException{
+	public ServerHandler() throws IOException{
 		srvSock = new ServerSocket(Constants.DEFAULT_PORT);
-		lThread = new LST_Thread();
+		lThread = new INIT_Thread();
 		x = new Thread(lThread);
 		x.start();
-	}
+	}//end constructor; implicit port number
 	
-	public ConHandler(int port) throws IOException{
+	public ServerHandler(int port) throws IOException{
 		srvSock = new ServerSocket(port);
-		lThread = new LST_Thread();
+		lThread = new INIT_Thread();
 		x = new Thread(lThread);
 		x.start();
-	}
+	}//end constructor; explicit port number
 
 	public Boolean killSock() throws IOException{
 		if(!srvSock.isClosed()){
@@ -41,9 +41,9 @@ public class ConHandler{
 			System.err.println("\n[!] Server Socket already closed.");
 			return(false);
 		}
-	}
+	}//end method killSock
 
-	private class LST_Thread implements Runnable{
+	private class INIT_Thread implements Runnable{
 		private Socket tempSock;
 		private Scanner in;
 
@@ -111,21 +111,21 @@ public class ConHandler{
 
 				// Create and start the receive thread
 				if(!tempSock.isClosed()) {
-				RCV_Thread cThread = new RCV_Thread(tempSock);
+				RUN_Thread cThread = new RUN_Thread(tempSock);
 				Thread y = new Thread(cThread);
 				y.start();
 				}				
 			}
-		}
-	}
+		}//end method run
+	}//end class INIT_Thread
 
-	private class RCV_Thread implements Runnable{
+	private class RUN_Thread implements Runnable{
 		private volatile Socket sock;
 		private volatile Scanner input;
 		private volatile PrintWriter clientOut;
 		private volatile Boolean run = true;
 
-		public RCV_Thread(Socket s){
+		public RUN_Thread(Socket s){
 			try{
 				//this.input = new Scanner(PrintWriter(tempSock));
 				input = new Scanner(s.getInputStream());
@@ -172,7 +172,7 @@ public class ConHandler{
 				if(sock.isClosed())
 					run = false;
 			}
-		}//end method run
+		}//end method run (RCV_Thread)
 
 		private int parseSysArg(String str){
 			//final String SYS_INIT = "#!010101";
@@ -217,6 +217,6 @@ public class ConHandler{
 
 			System.err.println("[!] Unable to parse system argument: "+str);
 			return 1;
-		}
-	}
-}//end class ConHandler
+		}//end method parseSysArg
+	}//end class RCV_Thread
+}//end class ServerHandler

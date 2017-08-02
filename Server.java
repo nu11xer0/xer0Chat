@@ -4,7 +4,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Server{
-	private static ConHandler handler;
+	private static ServerHandler handler;
 
 	public static void main(String[] args){
 		int choice = 0;
@@ -56,7 +56,7 @@ public class Server{
 			for(String s: args){								
 				if(next){					
 					try{
-						handler = new ConHandler(Integer.parseInt(s));
+						handler = new ServerHandler(Integer.parseInt(s));
 						System.out.println("Server port: "+s);
 					}
 					catch(Exception e){
@@ -71,7 +71,7 @@ public class Server{
 		}
 		else{
 			try{
-				handler = new ConHandler();
+				handler = new ServerHandler();
 				System.out.println("Server port: 4444");
 			}
 			catch(Exception e){
